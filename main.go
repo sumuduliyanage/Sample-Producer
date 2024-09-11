@@ -22,20 +22,23 @@ type WeatherData struct {
 
 func main() {
 
-	keypair, err := tls.LoadX509KeyPair("service.cert", "service.key")
+	serviceCert := os.Getenv("SERVICE_CERT")
+	serviceKey := os.Getenv("SERVICE_KEY")
+	caCert := os.Getenv("CA_CERT")
+
+	if serviceCert == "" || serviceKey == "" || caCert == "" {
+		log.Fatalf("Environment variables SERVICE_CERT, SERVICE_KEY, or CA_CERT are not set")
+	}
+
+	keypair, err := tls.X509KeyPair([]byte(serviceCert), []byte(serviceKey))
 	if err != nil {
 		log.Fatalf("Failed to load access key and/or access certificate: %s", err)
 	}
 
-	caCert, err := os.ReadFile("ca.pem")
-	if err != nil {
-		log.Fatalf("Failed to read CA certificate file: %s", err)
-	}
-
 	caCertPool := x509.NewCertPool()
-	ok := caCertPool.AppendCertsFromPEM(caCert)
+	ok := caCertPool.AppendCertsFromPEM([]byte(caCert))
 	if !ok {
-		log.Fatalf("Failed to parse CA certificate file: %s", err)
+		log.Fatalf("Failed to parse CA certificate from environment variable")
 	}
 
 	dialer := &kafka.Dialer{
