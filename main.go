@@ -104,6 +104,12 @@ func main() {
 		}
 		log.Printf("Message sent: %s", jsonData)
 		w.WriteHeader(http.StatusOK)
+		response := map[string]string{
+			"status":  "success",
+			"message": "Temperature data published successfully",
+			"values":  string(jsonData),
+		}
+		json.NewEncoder(w).Encode(response)
 	})
 
 	// Start the server on port 9090
