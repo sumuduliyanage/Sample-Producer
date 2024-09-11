@@ -15,9 +15,9 @@ import (
 )
 
 type WeatherData struct {
-	StationId   int    `json:"stationId"`
-	StationName string `json:"stationName"`
-	Temperature string `json:"temperature"`
+	StationId            int    `json:"stationId"`
+	StationName          string `json:"stationName"`
+	TemperatureInCelsius int    `json:"temperatureInCelsius"`
 }
 
 func loadPEMFromFile(filePath string) ([]byte, error) {

@@ -25,9 +25,9 @@ paths:
                 stationName:
                   type: string
                   example: "Station A"
-                temperature:
-                  type: string
-                  example: "23°C"
+                temperatureInCelsius:
+                  type: integer
+                  example: 23
       responses:
         '200':
           description: Message successfully sent to Kafka topic.
