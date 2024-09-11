@@ -20,23 +20,36 @@ type WeatherData struct {
 	Temperature string `json:"temperature"`
 }
 
+func loadPEMFromFile(filePath string) ([]byte, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
+	}
+	return data, nil
+}
+
 func main() {
 
-	serviceCert := os.Getenv("SERVICE_CERT")
-	serviceKey := os.Getenv("SERVICE_KEY")
-	caCert := os.Getenv("CA_CERT")
-
-	if serviceCert == "" || serviceKey == "" || caCert == "" {
-		log.Fatalf("Environment variables SERVICE_CERT, SERVICE_KEY, or CA_CERT are not set")
+	serviceCert, err := loadPEMFromFile("/service.cert")
+	if err != nil {
+		log.Fatalf("Failed to load SERVICE_CERT: %s", err)
+	}
+	serviceKey, err := loadPEMFromFile("/service.key")
+	if err != nil {
+		log.Fatalf("Failed to load SERVICE_KEY: %s", err)
+	}
+	caCert, err := loadPEMFromFile("/ca.pem")
+	if err != nil {
+		log.Fatalf("Failed to load CA_CERT: %s", err)
 	}
 
-	keypair, err := tls.X509KeyPair([]byte(serviceCert), []byte(serviceKey))
+	keypair, err := tls.X509KeyPair(serviceCert, serviceKey)
 	if err != nil {
 		log.Fatalf("Failed to load access key and/or access certificate: %s", err)
 	}
 
 	caCertPool := x509.NewCertPool()
-	ok := caCertPool.AppendCertsFromPEM([]byte(caCert))
+	ok := caCertPool.AppendCertsFromPEM(caCert)
 	if !ok {
 		log.Fatalf("Failed to parse CA certificate from environment variable")
 	}
